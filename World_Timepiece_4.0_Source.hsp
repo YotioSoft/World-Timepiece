@@ -1,0 +1,318 @@
+/*--------------------------------------------------------------------------------------------------
+
+										World Timepiece 4.0
+
+--------------------------------------------------------------------------------------------------*/
+
+#include "user32.as"
+
+//変数の初期化
+	top=0
+
+	dim RECT, 4
+	title"World Timepiece"
+	
+	gsel 0, 2
+	
+//設定の読み込み
+	notesel config
+	noteload "data/config.dat"
+	
+	noteget offline_mode_buf, 0
+	
+	split offline_mode_buf, " : ", not_use, offline_mode
+	offline_mode = int(offline_mode)
+	
+//関数の登録 
+#uselib "user32.dll" 
+	#func GetWindowLongA2 "GetWindowLongA" int , int 
+	#func SetWindowLongA2 "SetWindowLongA" int , int , int 
+	#func SetLayered2 "SetLayeredWindowAttributes" int , int , int , int 
+	
+	#define WM_NCLBUTTONDOWN $000000A1
+	#define HTCAPTION 2
+	
+	#func SetTimerA  "SetTimer"  int, int, int, int			;ウィンドウタイマーに使う
+	#func KillTimerA "KillTimer" int, int
+	#define WM_TIMER        0x0113
+	#define ID_TIMER        1
+
+	bgscr 0,300,500
+	gsel 0, 2
+	onexit *exit
+	
+//ウィンドウタイマー
+	;oncmd  gosub *ontimer, WM_TIMER
+	;SetTimerA hwnd, ID_TIMER, 50, 0			;数値を下げれば下げるほど動作が早くなるが、バグが起こりやすくなる
+
+#module
+	
+#deffunc gblur int p1, int p2	;画像をぼかす（hsp/sample/new/gblur.hsp）
+	gmode 3, ginfo_sx, ginfo_sy, 128
+	if (p2&1)=0 {
+		repeat p1
+		pos 1,0:gcopy ginfo(3)
+		pos 0,0:gcopy ginfo(3),2,0
+		if looplev>30:return
+		loop
+	}
+	if (p2&2)=0 {
+		repeat p1
+		pos 0,1:gcopy ginfo(3)
+		pos 0,0:gcopy ginfo(3),0,2
+		if looplev>30:return
+		loop
+	}
+	return
+	
+/*半透明色表示命令*/
+#deffunc sboxf int depth, int ax, int ay, int bx, int by
+	pdx = ax, bx, bx, ax
+	pdy = ay, ay, by, by
+	gmode 3,,,depth
+	gsquare -1,pdx, pdy
+	return
+	
+#deffunc cmes str ctext, int cx, int cy, int cx2, int cy2	;文字を中央に表示
+	#include "user32.as"
+	RECT = cx, cy, cx2, cy2
+	DrawText hdc, ctext, -1, varptr(RECT), $01
+	return
+	
+#defcfunc get_chapter var underlying_var, str search_chapter, str punctuate, str end_word
+	value = instr(underlying_var, 0, search_chapter)
+	get_chapter_buf = strmid ( underlying_var, value + strlen(""+search_chapter+""+punctuate+""), instr(underlying_var, value + strlen(""+search_chapter+""+punctuate+""), end_word) )
+	
+	return get_chapter_buf
+	
+#global
+
+*load_config
+	notesel config
+	noteload "data/config.dat"
+	
+	config__offline_mode = int( get_chapter(config, "offline_mode", " = ", ";") )
+	config__font_name = get_chapter(config, "font_name", " = \"", "\";")
+	
+	goto *buffering
+	
+*buffering
+	celload "i/open_city_select_menu.png", 2
+	celload "i/close_city_select_menu.png", 3
+	
+	goto *load_cities
+	
+*load_cities
+	color 236, 238, 241 : boxf
+	font "Noto Sans CJK SC Light",16 : color 0, 0, 0
+	cmes "時刻を取得中です...", 0, 260, 1024, 280
+	
+	onclick gosub *move
+	
+	oncmd 0
+	
+	//data/cities/フォルダ内にあるwtcdファイルをすべて取得
+		#include "hspext.as"
+	
+		directory_buf = dirinfo(0)
+		chdir "data/cities/"
+		
+		;まずパス名を覗いたファイル一覧を取得
+			dirlist2h 2, ','
+			dirlist2 buf_wtcd, "*.wtcd*", 1, '\\'
+		
+			sdim wtcd_file_name, buf_wtcd
+			dirlist2r wtcd_file_name
+			
+		;次にパス名を含めたファイル一覧を取得
+			dirlist2h 1, ','
+			dirlist2 buf_wtcd, "*.wtcd*", 1, '\\'
+			
+			sdim filelist, buf_wtcd
+			dirlist2r filelist
+			
+			notesel filelist
+			total_wtcd = notemax
+	
+		sdim cityname, total_wtcd
+	
+		repeat total_wtcd
+			notesel filelist
+			noteget filelist_cityname_buf, cnt
+		
+			notesel wtcd_buf
+			noteload filelist_cityname_buf
+	
+			cityname(cnt) = get_chapter(wtcd_buf, "EN_City_Name", " = \"", "\";")
+		loop
+	
+		chdir directory_buf
+	
+	selected_city_num = 0
+	goto *select_city
+	
+*select_city
+	notesel filelist
+	noteget selected_city_name, selected_city_num
+	
+	notesel wtcd_buf
+	noteload "data/cities/"+selected_city_name+""
+	
+	EN_City_Name = get_chapter(wtcd_buf, "EN_City_Name", " = \"", "\";")
+	JP_City_Name = get_chapter(wtcd_buf, "JP_City_Name", " = \"", "\";")
+	Image_Name = get_chapter(wtcd_buf, "Image_Name", " = \"", "\";")
+	UTC = int(get_chapter(wtcd_buf, "UTC", " = ", ";"))
+	Min_dif = int(get_chapter(wtcd_buf, "Min_dif", " = ", ";"))
+	Summer_Time = int(get_chapter(wtcd_buf, "Summer_Time", " = ", ";"))
+	Summary = get_chapter(wtcd_buf, "Summary", " { ", "};")
+	
+	buffer 1 : picload "i/"+Image_Name+""
+	pic_x = ginfo(12) : pic_y = ginfo(13)
+	gsel 0
+	
+	goto *get_JP_time
+
+*get_JP_time
+	//日本時間を取得
+		JP_Hour = gettime(4)
+		JP_Minute = gettime(5)
+		JP_Second = gettime(6)
+	
+	goto *get_the_city_time
+	
+*get_the_city_time
+	if sub = 0 {
+		//夏時間の期間を取得（夏時間がある場合のみ）
+			if Summer_Time != "None" {
+				Summer_Time__Start_Month  = strmid(Summer_Time, 0, instr(Summer_Time, 0, "to") )
+				Summer_Time__Finish_Month = strmid(Summer_Time, instr(Summer_Time, 0, "to")+2, strlen(Summer_Time) )
+				
+				summer_time_exist = 1
+			} else {
+				Summer_Time__Start_Month = -1
+				Summer_Time__Finish_Month = -1
+		
+				summer_time_exist = 0
+			}
+		
+		//現地時刻との時差を取得（日本時間よりも早ければ+、遅ければ-）
+			if UTC >= 0 {
+				time_dif_Hour = UTC - 9
+			} else {
+				time_dif_Hour = -(9-UTC)
+			}
+		
+			if Min_dif != 0 {
+				time_dif_Minute = JP_Minute - Min_dif
+			}
+	}
+	
+	//現地時刻を取得
+		the_city_Hour = JP_Hour + time_dif_Hour
+			if the_city_Hour < 0 {
+				the_city_Hour += 24
+			}
+	
+		the_city_Minute = JP_Minute + time_dif_Minute
+			if the_city_Minute < 0 {
+				the_city_Minute += 60
+				the_city_Hour -= 1
+				
+					if the_city_Hour < 0 {
+						the_city_Hour += 24
+					}
+			}
+	
+		the_city_Second = JP_Second
+	
+	if sub = 1 {
+		sub = 0
+		return
+	}
+	
+	goto *main
+	
+*main
+	//先にループ外の部分のみ表示
+		color 0, 150, 136 : boxf 0, 250, 300, 290
+	
+		font config__font_name, 22 : color 255, 255, 255
+		pos 10, 250 : mes ""+JP_City_Name+""
+	
+		font config__font_name, 12 : color 255, 255, 255
+		pos 12, 275 : mes ""+EN_City_Name+""
+	
+		font config__font_name, 14 : color 0, 0, 0
+		pos 10, 300 : mes Summary
+	
+		//都市選択メニューボタン
+			objimage 2 : objsize 40, 40
+			pos 260, 250 : button "", *city_select_menu
+	
+	//ループ部分（背景画像、現地時刻など）
+		repeat
+			redraw 0
+			
+			pos 0, 0 : gzoom 300, 250, 1, 0, 0, pic_x, pic_y, 1
+		
+			color 0, 0, 0 : sboxf 128, 0, 0, 300, 30
+		
+			font config__font_name, 14 : color 255, 255, 255
+			pos 5, 5 : mes "World Timepiece"
+			
+			font config__font_name, 72 : color 255, 255, 255
+			pos 10, 150 : mes ""+the_city_Hour+":"+strf("%02d", the_city_Minute)+""
+		
+			font config__font_name, 36 : color 255, 255, 255
+			pos 185, 188 : mes "."+strf("%02d", the_city_Second)+""
+		
+			sub = 1 : gosub *get_JP_time
+	
+			redraw 1
+			wait 10
+		loop
+	
+	stop
+	
+*city_select_menu
+	clrobj
+	
+	rad = 0.00
+	while cos(rad)*300 > 40 + 1
+		rad += 0.01
+	
+		redraw 0
+			pos cos(rad)*300 - 40, 250 : gmode 0 : gcopy 2, 0, 0, 40, 40
+			color 200, 200, 200 : boxf cos(rad)*300, 0, 300, 500
+			await 5
+		redraw 1
+	wend
+	
+	objimage 3 : objsize 40, 40
+	pos 0, 250 : button "", *close__city_select_menu
+	
+	stop
+	
+*close__city_select_menu
+	clrobj
+	
+	color 236, 238, 241 : boxf
+	goto *main
+	
+	stop
+	
+*move
+	if wparam == 1 and 0<= mousey & 30 >= mousey{		;タイトルバー部分が押されていた場合、ウィンドウを動かす
+		sendmsg hwnd,WM_NCLBUTTONDOWN,HTCAPTION,0
+	}
+	
+	return
+	
+*exit
+	oncmd 0
+	
+	notesel config
+	noteadd "offline_mode : "+offline_mode+"", 0, 1
+	notesave "data/config.dat"
+	
+	end
