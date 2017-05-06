@@ -85,6 +85,14 @@
 	
 	return get_chapter_buf
 	
+/*指定された範囲内にマウスがあるか確認する関数（使用例：click_range (100, 0, 300, 300) ）*/
+#defcfunc click_range int mouse_x, int mouse_y, int mouse_x2, int mouse_y2
+	if ginfo_wx1 <= ginfo_mx and ginfo_wx2 >= ginfo_mx and ginfo_wy1 <= ginfo_my and ginfo_wy2 >= ginfo_my and mouse_x <= mousex and mouse_x2 >= mousex and mouse_y <= mousey and mouse_y2 >= mousey {
+		return 1
+	}
+	
+	return 0
+	
 #global
 
 *load_config
@@ -107,7 +115,7 @@
 	font "Noto Sans CJK SC Light",16 : color 0, 0, 0
 	cmes "時刻を取得中です...", 0, 260, 1024, 280
 	
-	onclick gosub *move
+	onclick gosub *on_click
 	
 	oncmd 0
 	
@@ -245,26 +253,35 @@
 		font config__font_name, 14 : color 0, 0, 0
 		pos 10, 300 : mes Summary
 	
-		//都市選択メニューボタン
-			objimage 2 : objsize 40, 40
-			pos 260, 250 : button "", *city_select_menu
+		; 都市選択メニューボタン
+		  objimage 2 : objsize 40, 40
+		  pos 260, 250 : button "", *city_select_menu
 	
 	//ループ部分（背景画像、現地時刻など）
 		repeat
 			redraw 0
-			
-			pos 0, 0 : gzoom 300, 250, 1, 0, 0, pic_x, pic_y, 1
-		
-			color 0, 0, 0 : sboxf 128, 0, 0, 300, 30
-		
-			font config__font_name, 14 : color 255, 255, 255
-			pos 5, 5 : mes "World Timepiece"
-			
-			font config__font_name, 72 : color 255, 255, 255
-			pos 10, 150 : mes ""+the_city_Hour+":"+strf("%02d", the_city_Minute)+""
-		
-			font config__font_name, 36 : color 255, 255, 255
-			pos 185, 188 : mes "."+strf("%02d", the_city_Second)+""
+	
+			; 背景画像
+			  pos 0, 0 : gzoom 300, 250, 1, 0, 0, pic_x, pic_y, 1
+	
+			; タイトルバー
+			  color 0, 0, 0 : sboxf 128, 0, 0, 300, 30
+	
+			; タイトル
+			  font config__font_name, 14 : color 255, 255, 255
+			  pos 5, 5 : mes "World Timepiece"
+	
+			; 閉じるボタン
+			  color 255, 255, 255
+			  line 281, 5, 295, 19 :  line 281, 19, 295, 5
+	
+			; 現地時刻（時+分）
+			  font config__font_name, 72 : color 255, 255, 255
+			  pos 10, 150 : mes ""+strf("%2d", the_city_Hour)+":"+strf("%02d", the_city_Minute)+""
+	
+			; 現地時刻（秒）
+			  font config__font_name, 36 : color 255, 255, 255
+			  pos 185, 188 : mes "."+strf("%02d", the_city_Second)+""
 		
 			sub = 1 : gosub *get_JP_time
 	
@@ -300,6 +317,13 @@
 	goto *main
 	
 	stop
+	
+*on_click
+	if click_range(281, 5, 295, 19) = 1 {
+		end
+	}
+	
+	goto *move
 	
 *move
 	if wparam == 1 and 0<= mousey & 30 >= mousey{		;タイトルバー部分が押されていた場合、ウィンドウを動かす
