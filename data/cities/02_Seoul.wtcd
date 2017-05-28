@@ -1,0 +1,20 @@
+EN_City_Name = "Seoul";
+JP_City_Name = "ソウル特別市";
+EN_Country = "South Korea";
+JP_Country = "大韓民国";
+Image_Name = "Seoul.jpg";
+UTC = 9;
+Min_dif = 0;
+Summer_Time = None;
+
+Summary {
+国：大韓民国
+人口：10,117,909人（2014年10月31日）
+世界都市ランキング：11位（2015年）
+UTC：+9（夏時間なし）
+日本との時差：なし
+
+ソウルは韓国の最大の都市で、同国の首都です。
+ソウルは韓国語で「都」という意味です。
+冬は寒さが厳しく、1月の平均気温は-2.4度です。
+};

@@ -1,5 +1,7 @@
 EN_City_Name = "Tokyo";
-JP_City_Name = "“Œ‹";
+JP_City_Name = "“Œ‹“s";
+EN_Country = "Japan";
+JP_Country = "“ú–{‘";
 Image_Name = "Tokyo.jpg";
 UTC = 9;
 Min_dif = 0;

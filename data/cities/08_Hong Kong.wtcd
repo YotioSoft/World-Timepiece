@@ -1,0 +1,21 @@
+EN_City_Name = "Hong Kong";
+JP_City_Name = "香港特別行政区";
+EN_Country = "China";
+JP_Country = "中華人民共和国";
+Image_Name = "Hong Kong.jpg";
+UTC = 8;
+Min_dif = 0;
+Summer_Time = None;
+
+Summary {
+国：中華人民共和国
+行政区：香港特別行政区
+人口：7,234,800人（2014年）
+世界都市ランキング：5位（2015年）
+UTC：+8（夏時間なし）
+日本との時差：-1時間
+
+香港は中国南部にある大都市です。
+かつてはイギリス領で湾港都市として栄え、
+1997年に中国に返還されて以降も主要都市の一つとなっています。
+};

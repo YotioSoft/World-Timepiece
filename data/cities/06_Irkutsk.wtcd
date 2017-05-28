@@ -1,0 +1,21 @@
+EN_City_Name = "Irkutsk";
+JP_City_Name = "イルクーツク";
+EN_Country = "Irkutsk";
+JP_Country = "ロシア連邦";
+Image_Name = "Irkutsk.jpg";
+UTC = 8;
+Min_dif = 0;
+Summer_Time = None;
+
+Summary {
+国：ロシア連邦
+州：イルクーツク州
+人口：587,891人（2010年）
+UTC：+8（夏時間なし）
+日本との時差：-1時間
+
+イルクーツクはロシアのシベリア地方、
+バイカル湖西岸にある都市です。
+同国の首都モスクワとはシベリア鉄道でつながっていて、
+シベリア東部の工商、交通の要衝です。
+};

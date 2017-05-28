@@ -1,0 +1,21 @@
+EN_City_Name = "Perth";
+JP_City_Name = "パース";
+EN_Country = "Australia";
+JP_Country = "オーストラリア";
+Image_Name = "Perth.jpg";
+UTC = 8;
+Min_dif = 0;
+Summer_Time = None;
+
+Summary {
+国：オーストラリア連邦
+州：西オーストラリア州
+人口：2,021,200人（2014年）
+UTC：+8（夏時間なし）
+日本との時差：-1時間
+
+パースはオーストラリア西部最大の都市で、
+オーストラリアでは第4の都市です。
+美しい街並みから、「世界で一番美しい都市」と言われています。
+一年を通して温暖で、高低差が激しいです。
+};

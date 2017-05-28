@@ -152,6 +152,7 @@
 			noteload filelist_cityname_buf
 	
 			cityname(cnt) = get_chapter(wtcd_buf, "EN_City_Name", " = \"", "\";")
+			country(cnt) = get_chapter(wtcd_buf, "EN_Country", " = \"", "\";")
 		loop
 	
 		chdir directory_buf
@@ -168,7 +169,9 @@
 	
 	EN_City_Name = get_chapter(wtcd_buf, "EN_City_Name", " = \"", "\";")
 	JP_City_Name = get_chapter(wtcd_buf, "JP_City_Name", " = \"", "\";")
+	
 	Image_Name = get_chapter(wtcd_buf, "Image_Name", " = \"", "\";")
+	
 	UTC = int(get_chapter(wtcd_buf, "UTC", " = ", ";"))
 	Min_dif = int(get_chapter(wtcd_buf, "Min_dif", " = ", ";"))
 	Summer_Time = int(get_chapter(wtcd_buf, "Summer_Time", " = ", ";"))
@@ -294,6 +297,8 @@
 *city_select_menu
 	clrobj
 	
+	open_city_select_menu = 1
+	
 	rad = 0.00
 	while cos(rad)*300 > 40 + 1
 		rad += 0.01
@@ -308,10 +313,26 @@
 	objimage 3 : objsize 40, 40
 	pos 0, 250 : button "", *close__city_select_menu
 	
+	cos_tmp = cos(rad)*300
+	
+	//“sŽsˆê——‚ð•\Ž¦
+		redraw 0
+	
+		color 47, 205, 180 : boxf cos_tmp, 10+selected_city_num*20, 500, 20+10+selected_city_num*20
+		
+		repeat total_wtcd
+			font config__font_name, 14 : color 0, 0, 0
+			pos cos_tmp+10, 10+(cnt*20) : mes ""+cityname(cnt)+", "+country(cnt)+""
+		loop
+	
+		redraw 1
+	
 	stop
 	
 *close__city_select_menu
 	clrobj
+	
+	open_city_select_menu = 0
 	
 	color 236, 238, 241 : boxf
 	goto *main
@@ -321,6 +342,17 @@
 *on_click
 	if click_range(281, 5, 295, 19) = 1 {
 		end
+	}
+	
+	if open_city_select_menu = 1 and click_range(cos_tmp, 10, 300, 500-10) = 1 {
+		selected_city_num = (mousey-10)/20
+		
+		color 236, 238, 241 : boxf
+		clrobj
+	
+		open_city_select_menu = 0
+		
+		goto *select_city
 	}
 	
 	goto *move

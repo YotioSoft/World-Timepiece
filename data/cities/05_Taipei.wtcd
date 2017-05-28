@@ -1,0 +1,20 @@
+EN_City_Name = "Taipei";
+JP_City_Name = "台北市";
+EN_Country = "Taiwan";
+JP_Country = "中華民国";
+Image_Name = "Taipei.jpg";
+UTC = 8;
+Min_dif = 0;
+Summer_Time = None;
+
+Summary {
+国：中華民国
+人口：2,704,133人（2015年1月）
+UTC：+8（夏時間なし）
+日本との時差：-1時間
+
+台北は、中華民国の首都です。
+四方を新北市に囲まれており、人口では新北市に抜かれたものの、
+現在も台湾島の中心都市です。
+亜熱帯気候で、一年を通して温暖です。
+};

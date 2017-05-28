@@ -1,0 +1,20 @@
+EN_City_Name = "Jakarta";
+JP_City_Name = "ジャカルタ";
+EN_Country = "Indonesia";
+JP_Country = "インドネシア共和国";
+Image_Name = "Jakarta.jpg";
+UTC = 7;
+Min_dif = 0;
+Summer_Time = None;
+
+Summary {
+国：インドネシア共和国
+州：ジャカルタ首都特別州
+人口：9,580,000人（2010年）
+UTC：+7（夏時間なし）
+日本との時差：-2時間
+
+ジャカルタはインドネシアの首都で、同国最大の都市です。
+近郊を含む都市圏人口は世界2位で、東南アジアの中心都市の一つです。
+ジャカルタには日本から譲渡された電車が数多く走っています。
+};
